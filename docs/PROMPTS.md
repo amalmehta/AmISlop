@@ -11,3 +11,7 @@
    - **Round 3 answers:** Metric: *per-dimension scores*. Layout: *editor + margin notes*. Why hybrid: *rules miss meaning*.
 
    Result: a static site with a rules engine, live highlights, four scores, Ask Claude (with demo mode), History with trends, settings, file input, 32 tests, docs, and deployment to GitHub Pages.
+
+2. > Yes: reword the commit message to remove the mention of Claude and force-push main.
+
+   Result: amended the v1 commit message ("Ask Claude" became "LLM second opinion") and force-pushed `main`. Both attribution checks now print nothing.
