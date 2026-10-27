@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Am I Slop?</title>
+  <meta name="description" content="Paste a message you wrote. See whether it reads crisp or like slop, on four scores, before you send it." />
+  <link rel="icon" href="assets/icon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="assets/icon-180.png" />
+  <meta name="theme-color" content="#FAF7F2" media="(prefers-color-scheme: light)" />
+  <meta name="theme-color" content="#16140F" media="(prefers-color-scheme: dark)" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Newsreader:opsz,wght@6..72,500;6..72,600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+  <script>
+    try { const t = JSON.parse(localStorage.getItem("amislop.settings") || "{}").theme; if (t && t !== "system") document.documentElement.dataset.theme = t; } catch {}
+  </script>
+</head>
+<body>
+  <header class="top">
+    <a class="brand" href="#check" aria-label="Am I Slop? home">
+      <img src="assets/icon.svg" alt="" width="28" height="28" />
+      <span>Am I Slop?</span>
+    </a>
+    <nav class="tabs" role="tablist">
+      <a href="#check" role="tab" data-view="check" class="tab">
+        <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 4h12v9H9l-4 3v-3H4z" /></svg>Check
+      </a>
+      <a href="#history" role="tab" data-view="history" class="tab">
+        <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 15l4-5 3 3 6-8" /></svg>History
+      </a>
+    </nav>
+    <button class="icon-btn" id="open-settings" title="Settings (⌘,)" aria-label="Settings">
+      <svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="2.6" /><path d="M10 2.5v2M10 15.5v2M2.5 10h2M15.5 10h2M4.7 4.7l1.4 1.4M13.9 13.9l1.4 1.4M4.7 15.3l1.4-1.4M13.9 6.1l1.4-1.4" /></svg>
+    </button>
+  </header>
+
+  <main>
+    <!-- CHECK -->
+    <section id="view-check" class="view" aria-label="Check a message">
+      <div class="editor-col">
+        <div class="editor-card">
+          <div class="editor" id="editor">
+            <div class="backdrop" id="backdrop" aria-hidden="true"></div>
+            <textarea id="input" spellcheck="true" aria-label="Your message"
+              placeholder="Paste a message you're about to send: a Slack reply, an email, a PR description…"></textarea>
+          </div>
+          <div class="editor-bar">
+            <button class="ghost" id="upload-btn" title="Open a .txt, .md or .eml file. You can also drop or paste one.">
+              <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 14V4M6 8l4-4 4 4M4 16h12" /></svg>Upload
+            </button>
+            <input type="file" id="file" accept=".txt,.md,.markdown,.eml,text/plain,text/markdown,message/rfc822" hidden />
+            <span class="count" id="count">0 words</span>
+            <span class="spacer"></span>
+            <button class="ghost" id="ask-btn" title="Ask Claude for a second opinion (⌘⇧↵)">
+              <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 3l1.6 4.4L16 9l-4.4 1.6L10 15l-1.6-4.4L4 9l4.4-1.6z" /></svg>Ask Claude
+            </button>
+            <button class="primary" id="save-btn" title="Save to History (⌘↵)">
+              <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 10l4 4 8-8" /></svg>Save check
+            </button>
+          </div>
+        </div>
+        <div class="samples" id="samples">
+          <span class="quiet">Try a sample:</span>
+        </div>
+      </div>
+
+      <aside class="margin" id="margin" aria-live="polite">
+        <div class="verdict" id="verdict"></div>
+        <div class="scores" id="scores"></div>
+        <div class="claude" id="claude" hidden></div>
+        <h3 class="notes-h" id="notes-h">Notes</h3>
+        <ol class="notes" id="notes"></ol>
+        <button class="link" id="how-btn">
+          <svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="7.5" /><path d="M8 8a2 2 0 1 1 2.8 1.8c-.6.3-.8.7-.8 1.4M10 14h.01" /></svg>How scores work
+        </button>
+      </aside>
+    </section>
+
+    <!-- HISTORY -->
+    <section id="view-history" class="view" aria-label="History" hidden>
+      <div class="history-head">
+        <div>
+          <h2>Your writing over time</h2>
+          <p class="quiet" id="history-sub"></p>
+        </div>
+        <div class="row">
+          <button class="ghost" id="export-btn"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 4v10M6 10l4 4 4-4M4 17h12" /></svg>Export</button>
+          <button class="ghost" id="import-btn"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 14V4M6 8l4-4 4 4M4 17h12" /></svg>Import</button>
+          <input type="file" id="import-file" accept=".json,application/json" hidden />
+        </div>
+      </div>
+      <div class="trends" id="trends"></div>
+      <ol class="history-list" id="history-list"></ol>
+    </section>
+  </main>
+
+  <a class="feedback-tab" id="feedback" href="https://github.com/amalmehta/AmISlop/issues/new?title=Feedback%3A%20&labels=feedback" target="_blank" rel="noopener">Feedback</a>
+
+  <div class="drop-overlay" id="drop" hidden><div>Drop a text file to check it</div></div>
+  <div class="toast" id="toast" role="status" hidden></div>
+
+  <!-- SETTINGS -->
+  <dialog id="settings" aria-labelledby="settings-title">
+    <form method="dialog" class="dialog-body">
+      <div class="dialog-head">
+        <h2 id="settings-title">Settings</h2>
+        <button class="icon-btn" value="close" aria-label="Close">✕</button>
+      </div>
+
+      <fieldset>
+        <legend>Look</legend>
+        <div class="seg" role="radiogroup" aria-label="Theme">
+          <label><input type="radio" name="theme" value="system" />System</label>
+          <label><input type="radio" name="theme" value="light" />Light</label>
+          <label><input type="radio" name="theme" value="dark" />Dark</label>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Ask Claude</legend>
+        <label class="field">Anthropic API key
+          <span class="key-row">
+            <input type="password" id="api-key" autocomplete="off" spellcheck="false" placeholder="sk-ant-…" />
+            <button type="button" class="ghost small" id="key-toggle">Show</button>
+          </span>
+        </label>
+        <p class="hint">Stored only in this browser and sent only to api.anthropic.com. Anyone who uses this browser profile can read it, so don't save it on a shared computer. <a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener">Get a key</a></p>
+        <label class="field">Model
+          <select id="model"></select>
+        </label>
+        <p class="hint">Estimate: a 300-word message costs about 1–2¢ on Opus 5.5 at low effort, less on Sonnet or Haiku. Your Anthropic bill is the real number.</p>
+        <label class="check"><input type="checkbox" id="demo" /> Demo mode: no key, no API call, a canned reply that copies the rule scores</label>
+      </fieldset>
+
+      <fieldset>
+        <legend>Your data</legend>
+        <p class="hint">History lives in this browser only. Clearing site data deletes it, so export now and then.</p>
+        <div class="row">
+          <button type="button" class="ghost" id="s-export">Export history</button>
+          <button type="button" class="ghost" id="s-import">Import</button>
+          <button type="button" class="ghost danger" id="s-clear">Delete all history…</button>
+        </div>
+      </fieldset>
+      <p class="hint">Shortcuts: ⌘↵ save · ⌘⇧↵ ask Claude · ⌘, settings · Esc close</p>
+    </form>
+  </dialog>
+
+  <!-- HOW SCORES WORK -->
+  <dialog id="how" aria-labelledby="how-title" class="wide">
+    <div class="dialog-body prose">
+      <div class="dialog-head">
+        <h2 id="how-title">How scores work</h2>
+        <button class="icon-btn" onclick="this.closest('dialog').close()" aria-label="Close">✕</button>
+      </div>
+      <p><strong>Four scores, from 0 to 100. Higher is crisper.</strong> There's no total, because one number would hide which problem you have. And the easiest way to raise a single score is to write less, which isn't the same as writing better.</p>
+      <p class="callout">These formulas and constants are <strong>invented parameters</strong>, tuned by hand on five sample messages. They aren't a validated measure of good writing. Use them to spot patterns in your own messages, not to grade other people.</p>
+
+      <h3><i class="dot density"></i>Density: is anything padding?</h3>
+      <p>Padding is words that cost the reader time and carry no meaning ("I just wanted to circle back…"). Think of it as packing peanuts: the box gets bigger, but you didn't ship more.</p>
+      <div class="eq" data-tex="D = 100 - 5\,p - 2\,\max(0,\ \bar{a} - 22)"></div>
+      <ul class="symbols"><li><span data-tex="p"></span>: padding words per 100 words</li><li><span data-tex="\bar{a}"></span>: average sentence length, in words</li></ul>
+      <p>In plain words: you lose 5 points for every padding word per 100, and 2 points for every word your sentences average over 22.</p>
+
+      <h3><i class="dot directness"></i>Directness: does it say what it means?</h3>
+      <p>Hedges ("I think maybe") soften a point until the reader can't tell what you want. Vague words ("soon", "things") make them guess. Concrete details (numbers, dates, @names, links) earn back up to 10 points.</p>
+      <div class="eq" data-tex="R = 100 - 6\,h - 3\,v + \min(10,\ 2\,c)"></div>
+      <ul class="symbols"><li><span data-tex="h"></span>: hedges per 100 words</li><li><span data-tex="v"></span>: vague words per 100 words</li><li><span data-tex="c"></span>: concrete details per 100 words</li></ul>
+
+      <h3><i class="dot structure"></i>Structure: is it sturdy or taped together?</h3>
+      <p>A taped-together message jumps topics mid-paragraph ("…also the logo"), runs as a wall of text, or makes claims with no reason. A sturdy one works like a well-labelled box: one thing per compartment.</p>
+      <div class="eq" data-tex="S = 100 - 15\,m - 15\,w - 60\,u"></div>
+      <ul class="symbols"><li><span data-tex="m"></span>: topic jumps inside a paragraph (count)</li><li><span data-tex="w"></span>: paragraphs over 100 words (count)</li><li><span data-tex="u"></span>: share of sentences that are claims without a reason (0 to 1)</li></ul>
+      <p>A "claim without a reason" is a sentence with an absolute word (<em>should, must, always, clearly</em>) and no reason word (<em>because, since, so that</em>, or a number) in it or the next sentence. This is a rough heuristic: it flags some fine sentences and misses reasons phrased other ways. Ask Claude reads for meaning instead.</p>
+
+      <h3><i class="dot consistency"></i>Consistency: is it one voice?</h3>
+      <p>"Dear Mr. Chen… lol tbh" reads as if two people wrote it. Whichever register the message opens with sets the tone, and words from the other register are flagged.</p>
+      <div class="eq" data-tex="C = 100 - 20\,\min(f,\ k)"></div>
+      <ul class="symbols"><li><span data-tex="f"></span>: formal words (dear, kindly, pursuant to…)</li><li><span data-tex="k"></span>: casual words and emoji (hey, lol, gonna, 😅…)</li></ul>
+
+      <h3>The verdict</h3>
+      <p>Every score is first clamped to the range 0 to 100. Then:</p>
+      <ol class="steps"><li><strong>Crisp</strong> if every score is 75 or higher.</li><li>If any score is below 50, the verdict is named after the weakest one: <strong>Padded</strong>, <strong>Hedgy</strong> or <strong>Taped together</strong>.</li><li>Otherwise it's <strong>Mostly crisp</strong>, with the weakest score named.</li></ol>
+      <p>Under 8 words there's no verdict, because a few words can't show a pattern.</p>
+
+      <h3>When the rules are wrong</h3>
+      <p>The rules only see words. A message can avoid every flagged phrase and still say nothing, and a hedge can be the honest thing to write when you really are unsure. That's why Ask Claude exists: it reads for meaning, and its scores are shown next to the rule scores, not blended into them.</p>
+      <p class="principle"><strong>The reusable idea:</strong> to measure something fuzzy, split it into parts you can count, score each part on its own, label the constants as guesses, and check them against a second, independent judge.</p>
+      <p class="quiet small">Phrase lists draw on the Federal Plain Language Guidelines (plainlanguage.gov, 2011), Hyland's <em>Hedging in Scientific Research Articles</em> (1998), and Strunk &amp; White's "Omit needless words".</p>
+    </div>
+  </dialog>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
