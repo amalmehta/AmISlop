@@ -14,3 +14,7 @@ Four separate scores, with no blended total: **Density** (padding), **Directness
 - The scoring formulas are shown in the app. Their constants are hand-tuned guesses and are labelled that way.
 
 **Docs:** [Instructions](docs/INSTRUCTIONS.md) · [System design](docs/SYSTEM-DESIGN.md) · [File structure](docs/FILE-STRUCTURE.md) · [Prompt log](docs/PROMPTS.md)
+
+## How it was built
+
+How this was built and how it works, with diagrams: [docs/HOW-IT-WAS-BUILT.md](docs/HOW-IT-WAS-BUILT.md)
