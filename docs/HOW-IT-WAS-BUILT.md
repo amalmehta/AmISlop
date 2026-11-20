@@ -6,7 +6,7 @@ Am I Slop? is a single web page. You paste a message you are about to send, such
 ## Build history
 
 ```mermaid
-flowchart LR
+flowchart TD
   idea["Idea - is my communication style crispy or slop"]
   dec["Decisions - none recorded"]
   m1["v1 crisp-or-slop checker - 2026-10-27"]
